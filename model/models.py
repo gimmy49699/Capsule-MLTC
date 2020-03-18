@@ -1,3 +1,4 @@
+import pickle
 import tensorflow as tf
 import numpy as np
 
@@ -18,13 +19,18 @@ class Model(object):
     def placeholders(self):
         self.inputs = tf.placeholder(tf.int32, [self.cfg.batch_size, self.cfg.sen_len], name="inputs")
         self.labels = tf.placeholder(tf.float32, [self.cfg.batch_size, self.cfg.label_size], name="labels")
-        self.embed_inputs = tf.contrib.layers.embed_sequence(self.inputs, self.cfg.vocab_size, self.cfg.embed_size)
         self.learning_rate = tf.placeholder(tf.float32, shape=(), name="learning_rate")
         self.training = tf.placeholder(tf.bool, shape=(), name="training_flag")
+        if self.cfg.prew2v:
+            prew2v = pickle.load(open('./data/pretrainw2v/wordvectors100d.pkl', "rb"))
+            self.embedding = tf.Variable(prew2v, dtype=tf.float32)
+            self.embed_inputs = tf.nn.embedding_lookup(self.embedding, self.inputs)
+        else:
+            self.embed_inputs = tf.contrib.layers.embed_sequence(self.inputs, self.cfg.vocab_size, self.cfg.embed_size)
 
     def CapsuleModel(self):
         inputs = tf.expand_dims(self.embed_inputs, axis=-2)
-        caps, activations = PrimaryCaps(inputs=inputs, num_out_caps=2, out_caps_shape=64, training=self.training)
+        caps, activations = PrimaryCaps(inputs=inputs, num_out_caps=8, out_caps_shape=64, training=self.training)
 
         caps, activations = FullyConnectCaps(inputs=caps, activations=activations, training=self.training,
                                              num_out_caps=128, out_caps_shape=64, iter_times=self.cfg.iterations,
@@ -72,8 +78,8 @@ class Model(object):
             return train_x, train_y
 
     def run_one_epoch(self, sess, epoch, training, num_train, train_x, train_y):
-        # num_batchs = num_train // self.cfg.batch_size
-        num_batchs = 1000
+        num_batchs = num_train // self.cfg.batch_size
+        # num_batchs = 1000
         train_loss = []
         precision, recall, hammingloss = [], [], []
         for batch in range(1, num_batchs+1):

@@ -32,6 +32,6 @@ def margin_loss_v1(y, preds):
 
     mgloss = margin_loss(y, preds)
     regloss = reg1 + reg2
-    loss = mgloss + 0.5 * regloss
+    loss = mgloss + 0.1 * regloss
 
     return loss
