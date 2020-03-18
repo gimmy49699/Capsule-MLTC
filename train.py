@@ -1,4 +1,5 @@
 import argparse, os
+import pickle
 from model.models import Model
 
 # Configurations
@@ -16,7 +17,7 @@ parser.add_argument('-batch_size', default=8, type=int,
 parser.add_argument('-lr', default=0.001, type=float,
                     help='Learing rate.')
 
-parser.add_argument('-sen_len', default=300, type=int,
+parser.add_argument('-sen_len', default=200, type=int,
                     help='The length of truncated sentences.')
 
 parser.add_argument('-label_size', default=414, type=int,
@@ -30,6 +31,9 @@ parser.add_argument('-embed_size', default=128, type=int,
 
 parser.add_argument('-iterations', default=3, type=int,
                     help='Number of iteration times.')
+
+parser.add_argument('-prew2v', default=True, type=bool,
+                    help='If use pre-trained word2vec.')
 
 parser.add_argument('-loss_fn', default='margin_loss_v1', type=str,
                     help='loss functions.')
