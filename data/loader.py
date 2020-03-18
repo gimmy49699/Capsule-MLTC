@@ -48,10 +48,16 @@ class Loader(object):
         if self._dataname == 'rcv1':
             test_data = pickle.load(open(r'data/RCV1-V2/test_data.pkl', 'rb'))
             train_data = pickle.load(open(r'data/RCV1-V2/train_data.pkl', 'rb'))
-            vocab2id = pickle.load(open(r'data/RCV1-V2/vocab2id.pkl', 'rb'))
+            if self.cfg.prew2v:
+                vocab2id = pickle.load(open('./data/pretrainw2v/vocab2id.pkl', "rb"))
+            else:
+                vocab2id = pickle.load(open(r'data/RCV1-V2/vocab2id.pkl', 'rb'))
             return test_data, train_data, vocab2id
         elif self._dataname == 'aapd':
-            vocab2id = pickle.load(open(r'data/AAPD/vocab2id.pkl', 'rb'))
+            if self.cfg.prew2v:
+                vocab2id = pickle.load(open('./data/pretrainw2v/vocab2id.pkl', "rb"))
+            else:
+                vocab2id = pickle.load(open(r'data/AAPD/vocab2id.pkl', 'rb'))
             train_x = pickle.load(open(r'data/AAPD/train_x.pkl', 'rb'))
             train_y = pickle.load(open(r'data/AAPD/train_y.pkl', 'rb'))
             dev_x = pickle.load(open(r'data/AAPD/dev_x.pkl', 'rb'))
@@ -61,6 +67,8 @@ class Loader(object):
             return vocab2id, train_x, train_y, test_x, test_y, dev_x, dev_y
 
     def process(self):
+        if self.cfg.prew2v:
+            prew2v = pickle.load(open('./data/pretrainw2v/wordvectors100d.pkl', "rb"))
         if self._dataname == 'aapd':
             self.vocab2id, train_x, train_y, test_x, test_y, dev_x, dev_y = self.load()
             self._vocabsize = len(self.vocab2id)
